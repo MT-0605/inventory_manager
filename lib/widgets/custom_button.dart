@@ -44,6 +44,7 @@ class CustomButton extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               ),
               child: _buildButtonContent(theme, colorScheme.primary),
             )
@@ -52,11 +53,12 @@ class CustomButton extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: backgroundColor ?? colorScheme.primary,
                 foregroundColor: textColor ?? colorScheme.onPrimary,
-                elevation: 2,
-                shadowColor: colorScheme.primary.withOpacity(0.3),
+                elevation: 0,
+                shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               ),
               child: _buildButtonContent(
                 theme,

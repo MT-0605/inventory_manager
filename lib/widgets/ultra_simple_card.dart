@@ -20,15 +20,28 @@ class UltraSimpleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: color,
+    return Container(
+      decoration: BoxDecoration(
+        color: color ?? Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          height: height ?? 100, // Fixed height to prevent overflow
-          padding: padding ?? const EdgeInsets.all(12),
-          child: child,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            height: height ?? 100, // Fixed height to prevent overflow
+            padding: padding ?? const EdgeInsets.all(16),
+            child: child,
+          ),
         ),
       ),
     );
@@ -55,33 +68,45 @@ class UltraSimpleStatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return UltraSimpleCard(
-      height: 120, // Increased height for better readability
+      height: 120, // Reduced height to prevent overflow
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 28, color: color), // Larger icon
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: theme.textTheme.titleLarge?.copyWith(
-              // Larger text
-              fontWeight: FontWeight.bold,
-              color: color,
+          Container(
+            padding: const EdgeInsets.all(8), // Reduced padding
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            child: Icon(icon, size: 24, color: color), // Reduced icon size
           ),
-          const SizedBox(height: 6),
-          Text(
-            title,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              // Larger text
-              color: theme.colorScheme.onSurfaceVariant,
+          const SizedBox(height: 8), // Reduced spacing
+          Flexible(
+            child: Text(
+              value,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1F2937),
+                fontSize: 18, // Reduced font size
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2), // Reduced spacing
+          Flexible(
+            child: Text(
+              title,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: const Color(0xFF6B7280),
+                fontWeight: FontWeight.w500,
+                fontSize: 12, // Reduced font size
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -120,89 +145,97 @@ class UltraSimpleProductCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return UltraSimpleCard(
-      height: 140, // Increased height for better readability
+      height: 160, // Reduced height to prevent overflow
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Product image placeholder
           Container(
-            height: 40, // Larger image placeholder
+            height: 50, // Reduced image placeholder height
             width: double.infinity,
             decoration: BoxDecoration(
-              color: colorScheme.surfaceVariant.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(6),
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               Icons.image_outlined,
-              size: 20, // Larger icon
-              color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+              size: 20, // Reduced icon size
+              color: const Color(0xFF9CA3AF),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 8), // Reduced spacing
 
           // Product name
-          Text(
-            name,
-            style: theme.textTheme.titleSmall?.copyWith(
-              // Larger text
-              fontWeight: FontWeight.w600,
+          Flexible(
+            child: Text(
+              name,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF1F2937),
+                fontSize: 14, // Reduced font size
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 4), // Reduced spacing
 
           // Category
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.1),
+              color: const Color(0xFF6366F1).withOpacity(0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
               category,
-              style: theme.textTheme.labelMedium?.copyWith(
-                // Larger text
-                color: colorScheme.primary,
-                fontWeight: FontWeight.w500,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: const Color(0xFF6366F1),
+                fontWeight: FontWeight.w600,
+                fontSize: 10, // Reduced font size
               ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 6), // Reduced spacing
 
           // Price and stock
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                price,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  // Larger text
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  price,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: const Color(0xFF6366F1),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14, // Reduced font size
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.inventory_2_outlined,
-                    size: 12, // Larger icon
+                    size: 12, // Reduced icon size
                     color: isLowStock
-                        ? colorScheme.error
-                        : colorScheme.onSurfaceVariant,
+                        ? const Color(0xFFEF4444)
+                        : const Color(0xFF6B7280),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 2), // Reduced spacing
                   Text(
                     stock,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      // Larger text
                       color: isLowStock
-                          ? colorScheme.error
-                          : colorScheme.onSurfaceVariant,
+                          ? const Color(0xFFEF4444)
+                          : const Color(0xFF6B7280),
                       fontWeight: isLowStock
                           ? FontWeight.w600
-                          : FontWeight.normal,
+                          : FontWeight.w500,
+                      fontSize: 10, // Reduced font size
                     ),
                   ),
                 ],
@@ -212,28 +245,29 @@ class UltraSimpleProductCard extends StatelessWidget {
 
           // Low stock warning
           if (isLowStock) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 4), // Reduced spacing
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: colorScheme.errorContainer,
-                borderRadius: BorderRadius.circular(4),
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xFFFECACA)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     Icons.warning_amber_rounded,
-                    size: 10, // Larger icon
-                    color: colorScheme.onErrorContainer,
+                    size: 10, // Reduced icon size
+                    color: const Color(0xFFEF4444),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 4), // Reduced spacing
                   Text(
                     'Low Stock',
                     style: theme.textTheme.labelSmall?.copyWith(
-                      // Larger text
-                      color: colorScheme.onErrorContainer,
-                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFFEF4444),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 9, // Reduced font size
                     ),
                   ),
                 ],
@@ -243,39 +277,30 @@ class UltraSimpleProductCard extends StatelessWidget {
 
           // Action buttons
           if (showActions) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 8), // Reduced spacing
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onEdit,
-                    icon: const Icon(Icons.edit, size: 12), // Larger icon
-                    label: const Text(
-                      'Edit',
-                      style: TextStyle(fontSize: 10),
-                    ), // Larger text
+                    icon: const Icon(Icons.edit, size: 12), // Reduced icon size
+                    label: const Text('Edit', style: TextStyle(fontSize: 10)), // Reduced font size
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                      ), // Larger padding
+                      padding: const EdgeInsets.symmetric(vertical: 4), // Reduced padding
+                      side: const BorderSide(color: Color(0xFFE5E7EB)),
                     ),
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 4), // Reduced spacing
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onDelete,
-                    icon: const Icon(Icons.delete, size: 12), // Larger icon
-                    label: const Text(
-                      'Delete',
-                      style: TextStyle(fontSize: 10),
-                    ), // Larger text
+                    icon: const Icon(Icons.delete, size: 12), // Reduced icon size
+                    label: const Text('Delete', style: TextStyle(fontSize: 10)), // Reduced font size
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: colorScheme.error,
-                      side: BorderSide(color: colorScheme.error),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                      ), // Larger padding
+                      foregroundColor: const Color(0xFFEF4444),
+                      side: const BorderSide(color: Color(0xFFEF4444)),
+                      padding: const EdgeInsets.symmetric(vertical: 4), // Reduced padding
                     ),
                   ),
                 ),
