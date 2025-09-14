@@ -176,8 +176,8 @@ class PDFService {
               _buildTableCell('$index'),
               _buildTableCell(item.productName),
               _buildTableCell('${item.quantity}'),
-              _buildTableCell('\$${item.price.toStringAsFixed(2)}'),
-              _buildTableCell('\$${item.total.toStringAsFixed(2)}'),
+              _buildTableCell('₹${item.price.toStringAsFixed(2)}'),
+              _buildTableCell('₹${item.total.toStringAsFixed(2)}'),
             ],
           );
         }).toList(),
@@ -270,7 +270,7 @@ class PDFService {
             ),
           ),
           pw.Text(
-            '\$${amount.toStringAsFixed(2)}',
+            '₹${amount.toStringAsFixed(2)}',
             style: pw.TextStyle(
               fontSize: isTotal ? 12 : 10,
               fontWeight: isTotal ? pw.FontWeight.bold : pw.FontWeight.normal,

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
 import '../providers/billing_provider.dart';
 import '../widgets/loading_widget.dart';
-import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/ultra_simple_card.dart';
 import '../models/product.dart';
@@ -111,6 +110,7 @@ class _BillingScreenState extends State<BillingScreen> {
           );
         },
       ),
+      resizeToAvoidBottomInset: true,
     );
   }
 
@@ -118,9 +118,10 @@ class _BillingScreenState extends State<BillingScreen> {
     BuildContext context,
     ProductProvider productProvider,
   ) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Search bar
           TextField(
@@ -145,47 +146,51 @@ class _BillingScreenState extends State<BillingScreen> {
               fillColor: Theme.of(
                 context,
               ).colorScheme.surfaceVariant.withOpacity(0.3),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
             onChanged: (value) {
               productProvider.searchProducts(value);
             },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // Category filter
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                FilterChip(
-                  label: const Text('All'),
-                  selected: _selectedCategory == 'All',
-                  onSelected: (selected) {
-                    setState(() {
-                      _selectedCategory = 'All';
-                    });
-                    productProvider.filterByCategory('All');
-                  },
-                ),
-                const SizedBox(width: 8),
-                ...productProvider.categories
-                    .where((category) => category != 'All')
-                    .map(
-                      (category) => Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(category),
-                          selected: _selectedCategory == category,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedCategory = category;
-                            });
-                            productProvider.filterByCategory(category);
-                          },
+          SizedBox(
+            height: 40,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  FilterChip(
+                    label: const Text('All'),
+                    selected: _selectedCategory == 'All',
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedCategory = 'All';
+                      });
+                      productProvider.filterByCategory('All');
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  ...productProvider.categories
+                      .where((category) => category != 'All')
+                      .map(
+                        (category) => Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(category),
+                            selected: _selectedCategory == category,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedCategory = category;
+                              });
+                              productProvider.filterByCategory(category);
+                            },
+                          ),
                         ),
                       ),
-                    ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -197,18 +202,28 @@ class _BillingScreenState extends State<BillingScreen> {
     BuildContext context,
     ProductProvider productProvider,
   ) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.7, // Adjusted for larger cards
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: productProvider.filteredProducts.length,
-      itemBuilder: (context, index) {
-        final product = productProvider.filteredProducts[index];
-        return _buildProductCard(context, product);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Check if keyboard is open
+        final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+        
+        // Use smaller aspect ratio when keyboard is open to fit more content
+        final aspectRatio = isKeyboardOpen ? 0.6 : 0.7;
+        
+        return GridView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: aspectRatio,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: productProvider.filteredProducts.length,
+          itemBuilder: (context, index) {
+            final product = productProvider.filteredProducts[index];
+            return _buildProductCard(context, product);
+          },
+        );
       },
     );
   }
@@ -228,15 +243,6 @@ class _BillingScreenState extends State<BillingScreen> {
     );
   }
 
-  Widget _buildImagePlaceholder(BuildContext context) {
-    return Center(
-      child: Icon(
-        Icons.image_outlined,
-        size: 24,
-        color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
-      ),
-    );
-  }
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(

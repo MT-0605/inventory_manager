@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/product_provider.dart';
-import '../providers/billing_provider.dart';
-import '../providers/analytics_provider.dart';
 import 'dashboard_screen.dart';
 import 'products_screen.dart';
 import 'billing_screen.dart';
 import 'reports_screen.dart';
 import 'profile_screen.dart';
+import 'history_screen.dart';
 
 /// Main navigation screen with bottom navigation bar
 class MainNavigationScreen extends StatefulWidget {
@@ -24,6 +21,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     const DashboardScreen(),
     const ProductsScreen(),
     const BillingScreen(),
+    const HistoryScreen(),
     const ReportsScreen(),
     const ProfileScreen(),
   ];
@@ -58,8 +56,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 _buildNavItem(0, Icons.dashboard_outlined, Icons.dashboard, 'Dashboard'),
                 _buildNavItem(1, Icons.inventory_2_outlined, Icons.inventory_2, 'Products'),
                 _buildNavItem(2, Icons.receipt_long_outlined, Icons.receipt_long, 'Billing'),
-                _buildNavItem(3, Icons.analytics_outlined, Icons.analytics, 'Reports'),
-                _buildNavItem(4, Icons.person_outlined, Icons.person, 'Profile'),
+                _buildNavItem(3, Icons.history_outlined, Icons.history, 'History'),
+                _buildNavItem(4, Icons.analytics_outlined, Icons.analytics, 'Reports'),
+                _buildNavItem(5, Icons.person_outlined, Icons.person, 'Profile'),
               ],
             ),
           ),

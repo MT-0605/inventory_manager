@@ -144,7 +144,7 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '\$${item.price.toStringAsFixed(2)} each',
+                        '₹${item.price.toStringAsFixed(2)} each',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -198,7 +198,7 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '\$${item.total.toStringAsFixed(2)}',
+                      '₹${item.total.toStringAsFixed(2)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
@@ -289,7 +289,7 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
               Expanded(
                 child: CustomTextField(
                   controller: _discountController,
-                  labelText: 'Discount (\$)',
+                  labelText: 'Discount (₹)',
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final discount = double.tryParse(value) ?? 0;
@@ -386,7 +386,7 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
             ),
           ),
           Text(
-            '\$${amount.toStringAsFixed(2)}',
+            '₹${amount.toStringAsFixed(2)}',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
               color: isTotal ? Theme.of(context).colorScheme.primary : null,

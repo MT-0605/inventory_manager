@@ -195,7 +195,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         reservedSize: 40,
                         getTitlesWidget: (value, meta) {
                           return Text(
-                            '\$${value.toInt()}',
+                            '₹${value.toInt()}',
                             style: const TextStyle(fontSize: 10),
                           );
                         },
@@ -319,7 +319,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                   ?.copyWith(fontWeight: FontWeight.w500),
                             ),
                             Text(
-                              '${product['quantity']} sold • \$${(product['amount'] as double).toStringAsFixed(2)}',
+                              '${product['quantity']} sold • ₹${(product['amount'] as double).toStringAsFixed(2)}',
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     color: Theme.of(
@@ -437,7 +437,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         reservedSize: 40,
                         getTitlesWidget: (value, meta) {
                           return Text(
-                            '\$${value.toInt()}',
+                            '₹${value.toInt()}',
                             style: const TextStyle(fontSize: 10),
                           );
                         },

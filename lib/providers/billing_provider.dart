@@ -259,6 +259,20 @@ class BillingProvider with ChangeNotifier {
     }
   }
 
+  /// Get all bills
+  Future<List<Bill>> getAllBills() async {
+    try {
+      final querySnapshot = await FirebaseService.billsCollection
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return querySnapshot.docs.map((doc) => Bill.fromFirestore(doc)).toList();
+    } catch (e) {
+      _setError('Failed to load bills: $e');
+      return [];
+    }
+  }
+
   /// Set loading state
   void _setLoading(bool loading) {
     _isLoading = loading;
