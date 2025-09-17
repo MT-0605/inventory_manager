@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/billing_provider.dart';
+import '../providers/auth_provider.dart';
 import '../models/bill.dart';
 import '../widgets/loading_widget.dart';
+import '../services/pdf_service.dart';
 import 'package:intl/intl.dart';
 
 /// History screen for viewing previous bills
@@ -231,11 +233,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       fontFamily: 'monospace',
                     ),
                   ),
-                  Text(
-                    '${dateFormat.format(bill.createdAt)} • ${timeFormat.format(bill.createdAt)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        '${dateFormat.format(bill.createdAt)} • ${timeFormat.format(bill.createdAt)}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => _downloadBill(bill),
+                        icon: const Icon(Icons.download),
+                        iconSize: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                        tooltip: 'Download PDF',
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -461,5 +475,31 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ],
       ),
     );
+  }
+
+  /// Download bill as PDF
+  Future<void> _downloadBill(Bill bill) async {
+    try {
+      final authProvider = context.read<AuthProvider>();
+      await PDFService.generateAndSaveBill(bill, user: authProvider.user);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bill PDF downloaded successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to download PDF: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

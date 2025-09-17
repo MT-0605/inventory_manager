@@ -16,6 +16,7 @@ class BillingProvider with ChangeNotifier {
   double _discountAmount = 0.0;
   bool _isLoading = false;
   String? _errorMessage;
+  final List<void Function()> _afterGenerateListeners = [];
 
   // Getters
   List<BillItem> get cartItems => _cartItems;
@@ -26,6 +27,12 @@ class BillingProvider with ChangeNotifier {
   double get discountAmount => _discountAmount;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  void addAfterGenerateListener(void Function() listener) {
+    _afterGenerateListeners.add(listener);
+  }
+  void removeAfterGenerateListener(void Function() listener) {
+    _afterGenerateListeners.remove(listener);
+  }
 
   /// Get subtotal of all items in cart
   double get subtotal {
@@ -232,6 +239,11 @@ class BillingProvider with ChangeNotifier {
       _notes = null;
       _taxRate = 0.0;
       _discountAmount = 0.0;
+
+      // Notify external listeners (e.g., screens) to refresh
+      for (final cb in List.of(_afterGenerateListeners)) {
+        try { cb(); } catch (_) {}
+      }
 
       return bill;
     } catch (e) {

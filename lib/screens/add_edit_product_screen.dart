@@ -26,6 +26,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
   final _costPriceController = TextEditingController();
   final _stockController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _newCategoryController = TextEditingController();
 
   File? _selectedImage;
   String? _imageUrl;
@@ -67,6 +68,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
   void dispose() {
     _nameController.dispose();
     _categoryController.dispose();
+    _newCategoryController.dispose();
     _priceController.dispose();
     _costPriceController.dispose();
     _stockController.dispose();
@@ -83,6 +85,40 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
         _selectedImage = File(pickedFile.path);
       });
     }
+  }
+
+  void _showAddCategoryDialog() {
+    _newCategoryController.clear();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add New Category'),
+        content: TextField(
+          controller: _newCategoryController,
+          decoration: const InputDecoration(hintText: 'Enter category name'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final newCat = _newCategoryController.text.trim();
+              if (newCat.isNotEmpty && !_categories.contains(newCat)) {
+                setState(() {
+                  _categories.add(newCat);
+                  _categoryController.text = newCat;
+                });
+              }
+              Navigator.of(context).pop();
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _saveProduct() async {
@@ -190,11 +226,11 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Category
+                    // Category with add-new option
                     DropdownButtonFormField<String>(
-                      value: _categoryController.text.isEmpty
-                          ? null
-                          : _categoryController.text,
+                      value: _categories.contains(_categoryController.text)
+                          ? _categoryController.text
+                          : null,
                       decoration: InputDecoration(
                         labelText: 'Category *',
                         prefixIcon: const Icon(Icons.category_outlined),
@@ -202,23 +238,26 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: Theme.of(
-                          context,
-                        ).colorScheme.surfaceVariant.withOpacity(0.3),
+                        fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
                       ),
-                      items: _categories.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
+                      items: [
+                        ..._categories.map((c) => DropdownMenuItem(value: c, child: Text(c))),
+                        const DropdownMenuItem(
+                          value: '__add_new__',
+                          child: Text('➕ Add new category...'),
+                        ),
+                      ],
                       onChanged: (value) {
-                        if (value != null) {
+                        if (value == null) return;
+                        if (value == '__add_new__') {
+                          _showAddCategoryDialog();
+                        } else {
                           _categoryController.text = value;
+                          setState(() {});
                         }
                       },
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (_categoryController.text.trim().isEmpty) {
                           return 'Please select a category';
                         }
                         return null;

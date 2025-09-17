@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/analytics_provider.dart';
+import '../providers/billing_provider.dart';
 import '../models/sale_record.dart';
 import '../widgets/loading_widget.dart';
 import '../widgets/ultra_simple_card.dart';
@@ -130,6 +131,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
         },
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Auto-refresh reports when a bill is generated
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final billing = context.read<BillingProvider?>();
+      billing?.addAfterGenerateListener(() {
+        if (mounted) context.read<AnalyticsProvider>().init();
+      });
+    });
   }
 
   Widget _buildPeriodSelector() {

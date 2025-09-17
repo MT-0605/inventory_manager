@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/billing_provider.dart';
 import '../providers/product_provider.dart';
+import '../providers/auth_provider.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_widget.dart';
@@ -393,27 +394,9 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
       children: [
         Expanded(
           child: CustomButton(
-            text: 'Back',
-            isOutlined: true,
-            icon: Icons.arrow_back,
-            onPressed: () => setState(() => _currentStep = 0),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: CustomButton(
-            text: 'Preview PDF',
-            onPressed: () => _previewBill(context, billingProvider),
-            isOutlined: true,
-            icon: Icons.preview,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: CustomButton(
-            text: 'Generate Bill',
+            text: 'Submit',
             onPressed: () => _generateBill(context, billingProvider),
-            icon: Icons.receipt_long,
+            icon: Icons.check_circle_outline,
           ),
         ),
       ],
@@ -491,11 +474,12 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
     }
 
     final productProvider = context.read<ProductProvider>();
+    final authProvider = context.read<AuthProvider>();
     try {
       final bill = await billingProvider.generateBill(productProvider);
       if (bill != null && mounted) {
-        // Save PDF with unique name
-        await PDFService.generateAndSaveBill(bill);
+        // Save PDF with unique name and user information
+        await PDFService.generateAndSaveBill(bill, user: authProvider.user);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Bill generated and PDF saved!'),
