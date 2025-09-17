@@ -15,6 +15,7 @@ class FirebaseService {
   static FirebaseStorage get storage => _storage;
 
   // Collections
+  // Deprecated top-level collections (migrating to nested under shops/{uid}/...)
   static CollectionReference get productsCollection =>
       _firestore.collection('products');
   static CollectionReference get billsCollection =>
@@ -23,6 +24,19 @@ class FirebaseService {
       _firestore.collection('sales');
   static CollectionReference get usersCollection =>
       _firestore.collection('users');
+
+  // User-scoped nested collections: shops/{uid}/...
+  static CollectionReference userProductsCollection(String uid) {
+    return _firestore.collection('shops').doc(uid).collection('products');
+  }
+
+  static CollectionReference userBillsCollection(String uid) {
+    return _firestore.collection('shops').doc(uid).collection('bills');
+  }
+
+  static CollectionReference userSalesCollection(String uid) {
+    return _firestore.collection('shops').doc(uid).collection('sales');
+  }
 
   /// Get current user
   static User? get currentUser => _auth.currentUser;

@@ -82,7 +82,14 @@ class ProductProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      final querySnapshot = await FirebaseService.productsCollection
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return;
+      }
+
+      final querySnapshot = await FirebaseService
+          .userProductsCollection(currentUid)
           .orderBy('createdAt', descending: true)
           .get();
 
@@ -102,9 +109,20 @@ class ProductProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      final docRef = await FirebaseService.productsCollection.add(
-        product.toFirestore(),
-      );
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return false;
+      }
+
+      final data = {
+        ...product.toFirestore(),
+        'ownerId': currentUid,
+      };
+
+      final docRef = await FirebaseService
+          .userProductsCollection(currentUid)
+          .add(data);
 
       // Update the product with the generated ID
       final newProduct = product.copyWith(id: docRef.id);
@@ -126,7 +144,14 @@ class ProductProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      await FirebaseService.productsCollection
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return false;
+      }
+
+      await FirebaseService
+          .userProductsCollection(currentUid)
           .doc(product.id)
           .update(product.toFirestore());
 
@@ -150,7 +175,16 @@ class ProductProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      await FirebaseService.productsCollection.doc(productId).delete();
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return false;
+      }
+
+      await FirebaseService
+          .userProductsCollection(currentUid)
+          .doc(productId)
+          .delete();
 
       _products.removeWhere((product) => product.id == productId);
       notifyListeners();

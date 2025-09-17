@@ -28,7 +28,14 @@ class AnalyticsProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      final querySnapshot = await FirebaseService.salesCollection
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return;
+      }
+
+      final querySnapshot = await FirebaseService
+          .userSalesCollection(currentUid)
           .orderBy('saleDate', descending: true)
           .get();
 
@@ -45,7 +52,14 @@ class AnalyticsProvider with ChangeNotifier {
   /// Load recent bills
   Future<void> loadRecentBills() async {
     try {
-      final querySnapshot = await FirebaseService.billsCollection
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return;
+      }
+
+      final querySnapshot = await FirebaseService
+          .userBillsCollection(currentUid)
           .orderBy('createdAt', descending: true)
           .limit(50)
           .get();

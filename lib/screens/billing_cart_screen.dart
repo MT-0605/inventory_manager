@@ -78,7 +78,16 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
 
               // Customer info and totals
               if (!billingProvider.isCartEmpty)
-                _buildCustomerInfoAndTotals(context, billingProvider),
+                SafeArea(
+                  top: false,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.zero,
+                    child: _buildCustomerInfoAndTotals(
+                      context,
+                      billingProvider,
+                    ),
+                  ),
+                ),
             ],
           );
         },
@@ -412,17 +421,25 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
     }
 
     final productProvider = context.read<ProductProvider>();
-    final success = await billingProvider.generateBill(productProvider);
+    try {
+      final bill = await billingProvider.generateBill(productProvider);
+      if (bill != null && mounted) {
+        // Save PDF with unique name
+        await PDFService.generateAndSaveBill(bill);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bill generated and PDF saved!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.of(context).pop();
+        return;
+      }
+    } catch (e) {
+      // Fall-through to error snackbar below
+    }
 
-    if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Bill generated successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.of(context).pop();
-    } else if (mounted) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

@@ -144,10 +144,10 @@ class BillingProvider with ChangeNotifier {
   }
 
   /// Generate bill and process sale
-  Future<bool> generateBill(ProductProvider productProvider) async {
+  Future<Bill?> generateBill(ProductProvider productProvider) async {
     if (_cartItems.isEmpty || _customerName.isEmpty) {
       _setError('Cart is empty or customer name is required');
-      return false;
+      return null;
     }
 
     try {
@@ -159,11 +159,11 @@ class BillingProvider with ChangeNotifier {
         final product = productProvider.getProductById(item.productId);
         if (product == null) {
           _setError('Product ${item.productName} not found');
-          return false;
+          return null;
         }
         if (product.stockQuantity < item.quantity) {
           _setError('Insufficient stock for ${item.productName}');
-          return false;
+          return null;
         }
       }
 
@@ -185,8 +185,17 @@ class BillingProvider with ChangeNotifier {
         notes: _notes,
       );
 
-      // Save bill to Firestore
-      await FirebaseService.billsCollection.doc(billId).set(bill.toFirestore());
+      // Save bill to Firestore with ownerId
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return null;
+      }
+
+      await FirebaseService.userBillsCollection(currentUid).doc(billId).set({
+        ...bill.toFirestore(),
+        'ownerId': currentUid,
+      });
 
       // Create sale records and update stock
       final List<SaleRecord> saleRecords = [];
@@ -208,8 +217,11 @@ class BillingProvider with ChangeNotifier {
       // Save sale records
       final batch = FirebaseService.firestore.batch();
       for (final saleRecord in saleRecords) {
-        final docRef = FirebaseService.salesCollection.doc();
-        batch.set(docRef, saleRecord.toFirestore());
+        final docRef = FirebaseService.userSalesCollection(currentUid).doc();
+        batch.set(docRef, {
+          ...saleRecord.toFirestore(),
+          'ownerId': currentUid,
+        });
       }
       await batch.commit();
 
@@ -221,10 +233,10 @@ class BillingProvider with ChangeNotifier {
       _taxRate = 0.0;
       _discountAmount = 0.0;
 
-      return true;
+      return bill;
     } catch (e) {
       _setError('Failed to generate bill: $e');
-      return false;
+      return null;
     } finally {
       _setLoading(false);
     }
@@ -233,7 +245,15 @@ class BillingProvider with ChangeNotifier {
   /// Get bill by ID
   Future<Bill?> getBillById(String billId) async {
     try {
-      final doc = await FirebaseService.billsCollection.doc(billId).get();
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return null;
+      }
+
+      final doc = await FirebaseService.userBillsCollection(currentUid)
+          .doc(billId)
+          .get();
       if (doc.exists) {
         return Bill.fromFirestore(doc);
       }
@@ -247,7 +267,14 @@ class BillingProvider with ChangeNotifier {
   /// Get recent bills
   Future<List<Bill>> getRecentBills({int limit = 10}) async {
     try {
-      final querySnapshot = await FirebaseService.billsCollection
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return [];
+      }
+
+      final querySnapshot = await FirebaseService
+          .userBillsCollection(currentUid)
           .orderBy('createdAt', descending: true)
           .limit(limit)
           .get();
@@ -262,7 +289,14 @@ class BillingProvider with ChangeNotifier {
   /// Get all bills
   Future<List<Bill>> getAllBills() async {
     try {
-      final querySnapshot = await FirebaseService.billsCollection
+      final currentUid = FirebaseService.currentUser?.uid;
+      if (currentUid == null) {
+        _setError('User not authenticated');
+        return [];
+      }
+
+      final querySnapshot = await FirebaseService
+          .userBillsCollection(currentUid)
           .orderBy('createdAt', descending: true)
           .get();
 
