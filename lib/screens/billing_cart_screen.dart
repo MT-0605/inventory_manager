@@ -22,6 +22,7 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   final _notesController = TextEditingController();
   final _taxRateController = TextEditingController(text: '0');
   final _discountController = TextEditingController(text: '0');
+  int _currentStep = 0; // 0 = Cart, 1 = Details
 
   @override
   void dispose() {
@@ -36,6 +37,7 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Billing Cart'),
         backgroundColor: Colors.transparent,
@@ -67,28 +69,29 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
             return const LoadingWidget(message: 'Processing...');
           }
 
-          return Column(
-            children: [
-              // Cart items
-              Expanded(
-                child: billingProvider.isCartEmpty
-                    ? _buildEmptyCart(context)
-                    : _buildCartItems(context, billingProvider),
-              ),
+          final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: bottomInset + 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildStepHeader(context, billingProvider),
+                const SizedBox(height: 12),
 
-              // Customer info and totals
-              if (!billingProvider.isCartEmpty)
-                SafeArea(
-                  top: false,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.zero,
-                    child: _buildCustomerInfoAndTotals(
-                      context,
-                      billingProvider,
-                    ),
-                  ),
-                ),
-            ],
+                if (_currentStep == 0) ...[
+                  billingProvider.isCartEmpty
+                      ? _buildEmptyCart(context)
+                      : _buildCartItems(context, billingProvider),
+                  const SizedBox(height: 12),
+                  _buildStep0Actions(context, billingProvider),
+                ] else ...[
+                  if (!billingProvider.isCartEmpty)
+                    _buildCustomerInfoAndTotals(context, billingProvider),
+                  const SizedBox(height: 12),
+                  _buildStep1Actions(context, billingProvider),
+                ],
+              ],
+            ),
           );
         },
       ),
@@ -132,6 +135,8 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   ) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: billingProvider.cartItems.length,
       itemBuilder: (context, index) {
         final item = billingProvider.cartItems[index];
@@ -322,31 +327,96 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
 
           // Totals
           _buildTotalsSection(context, billingProvider),
-          const SizedBox(height: 16),
-
-          // Action buttons
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  text: 'Generate Bill',
-                  onPressed: () => _generateBill(context, billingProvider),
-                  icon: Icons.receipt_long,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: CustomButton(
-                  text: 'Preview PDF',
-                  onPressed: () => _previewBill(context, billingProvider),
-                  isOutlined: true,
-                  icon: Icons.preview,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStepHeader(BuildContext context, BillingProvider billingProvider) {
+    final tabs = [
+      {'label': 'Cart', 'index': 0, 'enabled': true},
+      {'label': 'Details', 'index': 1, 'enabled': !billingProvider.isCartEmpty},
+    ];
+    return Row(
+      children: tabs.map((t) {
+        final selected = _currentStep == t['index'];
+        final enabled = t['enabled'] as bool;
+        return Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: OutlinedButton(
+              onPressed: enabled
+                  ? () {
+                      setState(() => _currentStep = t['index'] as int);
+                    }
+                  : null,
+              style: OutlinedButton.styleFrom(
+                backgroundColor:
+                    selected ? Theme.of(context).colorScheme.primary.withOpacity(0.08) : null,
+              ),
+              child: Text(
+                t['label'] as String,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: selected
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildStep0Actions(BuildContext context, BillingProvider billingProvider) {
+    return Row(
+      children: [
+        Expanded(
+          child: CustomButton(
+            text: 'Next',
+            icon: Icons.arrow_forward,
+            onPressed: billingProvider.isCartEmpty
+                ? null
+                : () {
+                    setState(() => _currentStep = 1);
+                  },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStep1Actions(BuildContext context, BillingProvider billingProvider) {
+    return Row(
+      children: [
+        Expanded(
+          child: CustomButton(
+            text: 'Back',
+            isOutlined: true,
+            icon: Icons.arrow_back,
+            onPressed: () => setState(() => _currentStep = 0),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: CustomButton(
+            text: 'Preview PDF',
+            onPressed: () => _previewBill(context, billingProvider),
+            isOutlined: true,
+            icon: Icons.preview,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: CustomButton(
+            text: 'Generate Bill',
+            onPressed: () => _generateBill(context, billingProvider),
+            icon: Icons.receipt_long,
+          ),
+        ),
+      ],
     );
   }
 

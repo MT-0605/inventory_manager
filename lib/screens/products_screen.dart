@@ -34,6 +34,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: AppBar(
         title: const Text('Products'),
