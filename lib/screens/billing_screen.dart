@@ -51,12 +51,13 @@ class _BillingScreenState extends State<BillingScreen> {
                     onPressed: billingProvider.isCartEmpty
                         ? null
                         : () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const BillingCartScreen(),
-                              ),
-                            );
-                          },
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          // FIX: Changed BillingScreen() to BillingCartScreen()
+                          builder: (context) => const BillingCartScreen(),
+                        ),
+                      );
+                    },
                   ),
                   if (!billingProvider.isCartEmpty)
                     Positioned(
@@ -115,9 +116,9 @@ class _BillingScreenState extends State<BillingScreen> {
   }
 
   Widget _buildSearchAndFilter(
-    BuildContext context,
-    ProductProvider productProvider,
-  ) {
+      BuildContext context,
+      ProductProvider productProvider,
+      ) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
@@ -131,12 +132,12 @@ class _BillingScreenState extends State<BillingScreen> {
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        productProvider.searchProducts('');
-                      },
-                    )
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  _searchController.clear();
+                  productProvider.searchProducts('');
+                },
+              )
                   : null,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -176,19 +177,19 @@ class _BillingScreenState extends State<BillingScreen> {
                       .where((category) => category != 'All')
                       .map(
                         (category) => Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterChip(
-                            label: Text(category),
-                            selected: _selectedCategory == category,
-                            onSelected: (selected) {
-                              setState(() {
-                                _selectedCategory = category;
-                              });
-                              productProvider.filterByCategory(category);
-                            },
-                          ),
-                        ),
+                      padding: const EdgeInsets.only(right: 8),
+                      child: FilterChip(
+                        label: Text(category),
+                        selected: _selectedCategory == category,
+                        onSelected: (selected) {
+                          setState(() {
+                            _selectedCategory = category;
+                          });
+                          productProvider.filterByCategory(category);
+                        },
                       ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -199,17 +200,17 @@ class _BillingScreenState extends State<BillingScreen> {
   }
 
   Widget _buildProductsGrid(
-    BuildContext context,
-    ProductProvider productProvider,
-  ) {
+      BuildContext context,
+      ProductProvider productProvider,
+      ) {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Check if keyboard is open
         final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-        
+
         // Use smaller aspect ratio when keyboard is open to fit more content
         final aspectRatio = isKeyboardOpen ? 0.6 : 0.7;
-        
+
         return GridView.builder(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

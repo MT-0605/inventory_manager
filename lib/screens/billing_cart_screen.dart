@@ -50,14 +50,14 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
                 onPressed: billingProvider.isCartEmpty
                     ? null
                     : () {
-                        billingProvider.clearCart();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Cart cleared'),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
-                      },
+                  billingProvider.clearCart();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Cart cleared'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                },
                 child: const Text('Clear All'),
               );
             },
@@ -131,9 +131,9 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   }
 
   Widget _buildCartItems(
-    BuildContext context,
-    BillingProvider billingProvider,
-  ) {
+      BuildContext context,
+      BillingProvider billingProvider,
+      ) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       shrinkWrap: true,
@@ -237,9 +237,9 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   }
 
   Widget _buildCustomerInfoAndTotals(
-    BuildContext context,
-    BillingProvider billingProvider,
-  ) {
+      BuildContext context,
+      BillingProvider billingProvider,
+      ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -348,12 +348,12 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
             child: OutlinedButton(
               onPressed: enabled
                   ? () {
-                      setState(() => _currentStep = t['index'] as int);
-                    }
+                setState(() => _currentStep = t['index'] as int);
+              }
                   : null,
               style: OutlinedButton.styleFrom(
                 backgroundColor:
-                    selected ? Theme.of(context).colorScheme.primary.withOpacity(0.08) : null,
+                selected ? Theme.of(context).colorScheme.primary.withOpacity(0.08) : null,
               ),
               child: Text(
                 t['label'] as String,
@@ -381,8 +381,8 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
             onPressed: billingProvider.isCartEmpty
                 ? null
                 : () {
-                    setState(() => _currentStep = 1);
-                  },
+              setState(() => _currentStep = 1);
+            },
           ),
         ),
       ],
@@ -404,9 +404,9 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   }
 
   Widget _buildTotalsSection(
-    BuildContext context,
-    BillingProvider billingProvider,
-  ) {
+      BuildContext context,
+      BillingProvider billingProvider,
+      ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -431,11 +431,11 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   }
 
   Widget _buildTotalRow(
-    BuildContext context,
-    String label,
-    double amount, {
-    bool isTotal = false,
-  }) {
+      BuildContext context,
+      String label,
+      double amount, {
+        bool isTotal = false,
+      }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -460,9 +460,9 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   }
 
   Future<void> _generateBill(
-    BuildContext context,
-    BillingProvider billingProvider,
-  ) async {
+      BuildContext context,
+      BillingProvider billingProvider,
+      ) async {
     if (_customerNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -506,9 +506,9 @@ class _BillingCartScreenState extends State<BillingCartScreen> {
   }
 
   Future<void> _previewBill(
-    BuildContext context,
-    BillingProvider billingProvider,
-  ) async {
+      BuildContext context,
+      BillingProvider billingProvider,
+      ) async {
     if (_customerNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
