@@ -68,40 +68,40 @@ class UltraSimpleStatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return UltraSimpleCard(
-      height: 120, // Reduced height to prevent overflow
+      height: 120,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(8), // Reduced padding
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, size: 24, color: color), // Reduced icon size
+            child: Icon(icon, size: 24, color: color),
           ),
-          const SizedBox(height: 8), // Reduced spacing
+          const SizedBox(height: 8),
           Flexible(
             child: Text(
               value,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: const Color(0xFF1F2937),
-                fontSize: 18, // Reduced font size
+                fontSize: 18,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 2), // Reduced spacing
+          const SizedBox(height: 2),
           Flexible(
             child: Text(
               title,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: const Color(0xFF6B7280),
                 fontWeight: FontWeight.w500,
-                fontSize: 12, // Reduced font size
+                fontSize: 12,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -120,6 +120,7 @@ class UltraSimpleProductCard extends StatelessWidget {
   final String category;
   final String price;
   final String stock;
+  final String? imageUrl; // Added imageUrl
   final bool isLowStock;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
@@ -132,6 +133,7 @@ class UltraSimpleProductCard extends StatelessWidget {
     required this.category,
     required this.price,
     required this.stock,
+    this.imageUrl,
     this.isLowStock = false,
     this.onTap,
     this.onEdit,
@@ -142,29 +144,42 @@ class UltraSimpleProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return UltraSimpleCard(
-      height: 160, // Reduced height to prevent overflow
+      height: 160,
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product image placeholder
+          // Product image
           Container(
-            height: 50, // Reduced image placeholder height
+            height: 70,
             width: double.infinity,
             decoration: BoxDecoration(
               color: const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              Icons.image_outlined,
-              size: 20, // Reduced icon size
-              color: const Color(0xFF9CA3AF),
+            child: imageUrl != null
+                ? ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                imageUrl!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  print('Image load error for URL: $imageUrl, Error: $error');
+                  return const Center(child: Icon(Icons.broken_image));
+                },
+              ),
+            )
+                : const Center(
+              child: Icon(
+                Icons.image_outlined,
+                size: 20,
+                color: Color(0xFF9CA3AF),
+              ),
             ),
           ),
-          const SizedBox(height: 8), // Reduced spacing
+          const SizedBox(height: 8),
 
           // Product name
           Flexible(
@@ -173,13 +188,13 @@ class UltraSimpleProductCard extends StatelessWidget {
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: const Color(0xFF1F2937),
-                fontSize: 14, // Reduced font size
+                fontSize: 14,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 4), // Reduced spacing
+          const SizedBox(height: 4),
 
           // Category
           Container(
@@ -193,11 +208,11 @@ class UltraSimpleProductCard extends StatelessWidget {
               style: theme.textTheme.labelSmall?.copyWith(
                 color: const Color(0xFF6366F1),
                 fontWeight: FontWeight.w600,
-                fontSize: 10, // Reduced font size
+                fontSize: 10,
               ),
             ),
           ),
-          const SizedBox(height: 6), // Reduced spacing
+          const SizedBox(height: 6),
 
           // Price and stock
           Row(
@@ -209,7 +224,7 @@ class UltraSimpleProductCard extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: const Color(0xFF6366F1),
                     fontWeight: FontWeight.bold,
-                    fontSize: 14, // Reduced font size
+                    fontSize: 14,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -220,22 +235,16 @@ class UltraSimpleProductCard extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.inventory_2_outlined,
-                    size: 12, // Reduced icon size
-                    color: isLowStock
-                        ? const Color(0xFFEF4444)
-                        : const Color(0xFF6B7280),
+                    size: 12,
+                    color: isLowStock ? const Color(0xFFEF4444) : const Color(0xFF6B7280),
                   ),
-                  const SizedBox(width: 2), // Reduced spacing
+                  const SizedBox(width: 2),
                   Text(
                     stock,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: isLowStock
-                          ? const Color(0xFFEF4444)
-                          : const Color(0xFF6B7280),
-                      fontWeight: isLowStock
-                          ? FontWeight.w600
-                          : FontWeight.w500,
-                      fontSize: 10, // Reduced font size
+                      color: isLowStock ? const Color(0xFFEF4444) : const Color(0xFF6B7280),
+                      fontWeight: isLowStock ? FontWeight.w600 : FontWeight.w500,
+                      fontSize: 10,
                     ),
                   ),
                 ],
@@ -245,7 +254,7 @@ class UltraSimpleProductCard extends StatelessWidget {
 
           // Low stock warning
           if (isLowStock) ...[
-            const SizedBox(height: 4), // Reduced spacing
+            const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
@@ -256,18 +265,14 @@ class UltraSimpleProductCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    size: 10, // Reduced icon size
-                    color: const Color(0xFFEF4444),
-                  ),
-                  const SizedBox(width: 4), // Reduced spacing
+                  Icon(Icons.warning_amber_rounded, size: 10, color: const Color(0xFFEF4444)),
+                  const SizedBox(width: 4),
                   Text(
                     'Low Stock',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: const Color(0xFFEF4444),
                       fontWeight: FontWeight.w600,
-                      fontSize: 9, // Reduced font size
+                      fontSize: 9,
                     ),
                   ),
                 ],
@@ -277,30 +282,30 @@ class UltraSimpleProductCard extends StatelessWidget {
 
           // Action buttons
           if (showActions) ...[
-            const SizedBox(height: 8), // Reduced spacing
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onEdit,
-                    icon: const Icon(Icons.edit, size: 12), // Reduced icon size
-                    label: const Text('Edit', style: TextStyle(fontSize: 10)), // Reduced font size
+                    icon: const Icon(Icons.edit, size: 12),
+                    label: const Text('Edit', style: TextStyle(fontSize: 10)),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 4), // Reduced padding
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                       side: const BorderSide(color: Color(0xFFE5E7EB)),
                     ),
                   ),
                 ),
-                const SizedBox(width: 4), // Reduced spacing
+                const SizedBox(width: 4),
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onDelete,
-                    icon: const Icon(Icons.delete, size: 12), // Reduced icon size
-                    label: const Text('Delete', style: TextStyle(fontSize: 10)), // Reduced font size
+                    icon: const Icon(Icons.delete, size: 12),
+                    label: const Text('Delete', style: TextStyle(fontSize: 10)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFEF4444),
                       side: const BorderSide(color: Color(0xFFEF4444)),
-                      padding: const EdgeInsets.symmetric(vertical: 4), // Reduced padding
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                     ),
                   ),
                 ),

@@ -232,21 +232,80 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _buildSalesChart(
-    BuildContext context,
-    AnalyticsProvider analyticsProvider,
-  ) {
-    // Recompute a 7-day window from filtered sales for the selected period
+      BuildContext context,
+      AnalyticsProvider analyticsProvider,
+      ) {
     final filtered = _filteredSales(analyticsProvider);
-    final now = DateTime.now();
-    final start = now.subtract(const Duration(days: 6));
-    final days = List.generate(7, (i) {
-      final d = DateTime(start.year, start.month, start.day).add(Duration(days: i));
-      final daySales = filtered
-          .where((r) => r.saleDate.year == d.year && r.saleDate.month == d.month && r.saleDate.day == d.day)
-          .fold(0.0, (sum, r) => sum + r.totalAmount);
-      return {'date': d, 'sales': daySales};
-    });
-    final data = days;
+
+    // Generate data based on selected period
+    List<Map<String, dynamic>> chartData = [];
+
+    switch (_selectedPeriod) {
+      case 'Today':
+      // Show hourly data for today
+        final now = DateTime.now();
+        final startOfDay = DateTime(now.year, now.month, now.day);
+
+        for (int hour = 0; hour < 24; hour++) {
+          final hourStart = startOfDay.add(Duration(hours: hour));
+          final hourEnd = hourStart.add(const Duration(hours: 1));
+
+          final hourSales = filtered
+              .where((r) => r.saleDate.isAfter(hourStart) && r.saleDate.isBefore(hourEnd))
+              .fold(0.0, (sum, r) => sum + r.totalAmount);
+
+          chartData.add({
+            'label': '${hour.toString().padLeft(2, '0')}:00',
+            'value': hourSales,
+            'date': hourStart,
+          });
+        }
+        break;
+
+      case 'This Week':
+      case 'This Month':
+      default:
+      // Show daily data for week/month/all time
+        final range = _getSelectedRange();
+        final daysDifference = range.end.difference(range.start).inDays;
+        final maxDays = daysDifference > 30 ? 30 : daysDifference; // Limit to 30 days for readability
+
+        for (int i = 0; i <= maxDays; i++) {
+          final currentDay = DateTime(
+            range.start.year,
+            range.start.month,
+            range.start.day,
+          ).add(Duration(days: i));
+
+          if (currentDay.isAfter(range.end)) break;
+
+          final dayEnd = DateTime(
+            currentDay.year,
+            currentDay.month,
+            currentDay.day,
+            23,
+            59,
+            59,
+          );
+
+          final daySales = filtered
+              .where((r) =>
+          r.saleDate.isAfter(currentDay.subtract(const Duration(seconds: 1))) &&
+              r.saleDate.isBefore(dayEnd.add(const Duration(seconds: 1))))
+              .fold(0.0, (sum, r) => sum + r.totalAmount);
+
+          chartData.add({
+            'label': '${currentDay.day}/${currentDay.month}',
+            'value': daySales,
+            'date': currentDay,
+          });
+        }
+        break;
+    }
+
+    // Find max value for Y-axis scaling
+    final maxValue = chartData.isEmpty ? 100.0 :
+    chartData.map((d) => d['value'] as double).reduce((a, b) => a > b ? a : b);
 
     return Card(
       child: Padding(
@@ -255,7 +314,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Sales Trend (Last 7 Days)',
+              'Sales Trend - $_selectedPeriod',
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -263,14 +322,37 @@ class _ReportsScreenState extends State<ReportsScreen> {
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
-              child: LineChart(
+              child: chartData.isEmpty
+                  ? Center(
+                child: Text(
+                  'No sales data available for this period',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              )
+                  : LineChart(
                 LineChartData(
-                  gridData: const FlGridData(show: false),
+                  maxY: maxValue > 0 ? maxValue * 1.2 : 100,
+                  minY: 0,
+                  gridData: FlGridData(
+                    show: true,
+                    drawHorizontalLine: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: maxValue > 0 ? maxValue / 5 : 20,
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+                        strokeWidth: 1,
+                      );
+                    },
+                  ),
                   titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 40,
+                        reservedSize: 50,
+                        interval: maxValue > 0 ? maxValue / 4 : 25,
                         getTitlesWidget: (value, meta) {
                           return Text(
                             '₹${value.toInt()}',
@@ -282,13 +364,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
+                        reservedSize: 30,
+                        interval: chartData.length > 10 ? (chartData.length / 6).ceil().toDouble() : 1,
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() < data.length) {
-                            final date =
-                                data[value.toInt()]['date'] as DateTime;
+                          final index = value.toInt();
+                          if (index >= 0 && index < chartData.length) {
                             return Text(
-                              '${date.day}/${date.month}',
-                              style: const TextStyle(fontSize: 10),
+                              chartData[index]['label'] as String,
+                              style: const TextStyle(fontSize: 9),
                             );
                           }
                           return const Text('');
@@ -302,19 +385,35 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
-                  borderData: FlBorderData(show: false),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
                   lineBarsData: [
                     LineChartBarData(
-                      spots: data.asMap().entries.map((entry) {
+                      spots: chartData.asMap().entries.map((entry) {
                         return FlSpot(
                           entry.key.toDouble(),
-                          entry.value['sales'] as double,
+                          entry.value['value'] as double,
                         );
                       }).toList(),
                       isCurved: true,
                       color: Theme.of(context).colorScheme.primary,
                       barWidth: 3,
-                      dotData: const FlDotData(show: true),
+                      dotData: FlDotData(
+                        show: chartData.length <= 15, // Show dots only for smaller datasets
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: 3,
+                            color: Theme.of(context).colorScheme.primary,
+                            strokeWidth: 1,
+                            strokeColor: Colors.white,
+                          );
+                        },
+                      ),
                       belowBarData: BarAreaData(
                         show: true,
                         color: Theme.of(
@@ -436,15 +535,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _buildCategorySales(
-    BuildContext context,
-    List<SaleRecord> filteredSales,
-  ) {
+      BuildContext context,
+      List<SaleRecord> filteredSales,
+      ) {
     final Map<String, double> categorySales = {};
     for (final r in filteredSales) {
       categorySales[r.category] = (categorySales[r.category] ?? 0) + r.totalAmount;
     }
     final entries = categorySales.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+      ..sort((a, b) => b.value.compareTo(a.value)); // Highest first
 
     return Card(
       child: Padding(
@@ -470,25 +569,94 @@ class _ReportsScreenState extends State<ReportsScreen> {
               )
             else
               SizedBox(
-                height: 200,
-                child: PieChart(
-                  PieChartData(
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 40,
-                    sections: entries.take(5).map((entry) {
-                      final color = _getCategoryColor(entry.key);
-                      return PieChartSectionData(
-                        color: color,
-                        value: entry.value,
-                        title: entry.key,
-                        radius: 60,
-                        titleStyle: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                height: 250,
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: entries.isNotEmpty ? entries.first.value * 1.2 : 100,
+                    barGroups: entries.take(8).toList().asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final categoryEntry = entry.value;
+                      return BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: categoryEntry.value,
+                            color: _getCategoryColor(categoryEntry.key),
+                            width: 20,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(4),
+                              topRight: Radius.circular(4),
+                            ),
+                          ),
+                        ],
                       );
                     }).toList(),
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 50,
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              '₹${value.toInt()}',
+                              style: const TextStyle(fontSize: 10),
+                            );
+                          },
+                        ),
+                      ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            final index = value.toInt();
+                            if (index >= 0 && index < entries.take(8).length) {
+                              final categoryName = entries[index].key;
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  categoryName.length > 8
+                                      ? '${categoryName.substring(0, 8)}...'
+                                      : categoryName,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              );
+                            }
+                            return const Text('');
+                          },
+                        ),
+                      ),
+                      topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                      rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
+                    ),
+                    borderData: FlBorderData(
+                      show: true,
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    gridData: FlGridData(
+                      show: true,
+                      drawHorizontalLine: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: entries.isNotEmpty ? entries.first.value / 5 : 20,
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(
+                          color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+                          strokeWidth: 1,
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -497,6 +665,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       ),
     );
   }
+
 
 
   Color _getCategoryColor(String category) {

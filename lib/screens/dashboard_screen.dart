@@ -119,13 +119,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
 
-              // Recent Products
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: _buildRecentProducts(context, productProvider),
-                ),
-              ),
 
               // Quick Actions
               SliverToBoxAdapter(
@@ -267,58 +260,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildRecentProducts(
-    BuildContext context,
-    ProductProvider productProvider,
-  ) {
-    final recentProducts = productProvider.products.take(4).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Recent Products',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF1F2937),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                // Navigate to products screen
-              },
-              child: const Text('View All'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 220,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: recentProducts.length,
-            itemBuilder: (context, index) {
-              return Container(
-                width: 180,
-                margin: const EdgeInsets.only(right: 16),
-                child: UltraSimpleProductCard(
-                  name: recentProducts[index].name,
-                  category: recentProducts[index].category,
-                  price: '₹${recentProducts[index].price.toStringAsFixed(0)}',
-                  stock: '${recentProducts[index].stockQuantity}',
-                  isLowStock: recentProducts[index].isLowStock,
-                  showActions: false,
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildQuickActions(BuildContext context) {
     return Column(

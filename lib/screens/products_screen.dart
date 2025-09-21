@@ -223,6 +223,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
           category: product.category,
           price: '₹${product.price.toStringAsFixed(0)}',
           stock: '${product.stockQuantity}',
+          imageUrl: product.imageUrl, // ← Add this
           isLowStock: product.isLowStock,
           showActions: true,
           onEdit: () {

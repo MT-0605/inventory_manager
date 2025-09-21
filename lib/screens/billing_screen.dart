@@ -229,11 +229,13 @@ class _BillingScreenState extends State<BillingScreen> {
   }
 
   Widget _buildProductCard(BuildContext context, Product product) {
+    print('Billing - Product: ${product.name}, imageUrl: ${product.imageUrl}');
     return UltraSimpleProductCard(
       name: product.name,
       category: product.category,
       price: '₹${product.price.toStringAsFixed(0)}',
       stock: '${product.stockQuantity}',
+      imageUrl: product.imageUrl,
       isLowStock: product.isLowStock,
       onTap: () {
         if (product.stockQuantity > 0) {
@@ -242,7 +244,6 @@ class _BillingScreenState extends State<BillingScreen> {
       },
     );
   }
-
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(

@@ -29,6 +29,8 @@ class Product {
   /// Create Product from Firestore document
   factory Product.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    final imageUrl = data['imageUrl'];
+    print('Product.fromFirestore - ${data['name']}: imageUrl = $imageUrl (type: ${imageUrl.runtimeType})');
     return Product(
       id: doc.id,
       name: data['name'] ?? '',
@@ -36,7 +38,7 @@ class Product {
       price: (data['price'] ?? 0).toDouble(),
       costPrice: (data['costPrice'] ?? 0).toDouble(),
       stockQuantity: data['stockQuantity'] ?? 0,
-      imageUrl: data['imageUrl'],
+      imageUrl: imageUrl,
       description: data['description'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),

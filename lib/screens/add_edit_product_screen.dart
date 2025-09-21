@@ -7,6 +7,7 @@ import '../providers/product_provider.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/loading_widget.dart';
+import '../services/cloudinary_service.dart';
 
 /// Screen for adding or editing products
 class AddEditProductScreen extends StatefulWidget {
@@ -131,7 +132,25 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
     try {
       final productProvider = context.read<ProductProvider>();
 
-      // Create or update product
+      // Step 1: Upload image to Cloudinary if a new image is selected
+      if (_selectedImage != null) {
+        final uploadedUrl = await CloudinaryService.uploadImage(_selectedImage!);
+        if (uploadedUrl != null) {
+          _imageUrl = uploadedUrl;
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Image upload failed'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return; // stop saving if image upload fails
+        }
+      }
+
+      // Step 2: Create or update product object
       final product = Product(
         id: widget.product?.id ?? '',
         name: _nameController.text.trim(),
@@ -142,11 +161,12 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
         description: _descriptionController.text.trim().isEmpty
             ? null
             : _descriptionController.text.trim(),
-        imageUrl: _imageUrl,
+        imageUrl: _imageUrl, // Cloudinary URL
         createdAt: widget.product?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
+      // Step 3: Add or update product in Firebase
       bool success;
       if (widget.product != null) {
         success = await productProvider.updateProduct(product);
@@ -154,6 +174,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
         success = await productProvider.addProduct(product);
       }
 
+      // Step 4: Show success/failure messages
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
