@@ -229,13 +229,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Bill #${bill.id.substring(0, 8)}...',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontFamily: 'monospace',
-                      ),
-                    ),
                     Row(
                       children: [
                         Text(
@@ -275,7 +268,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildBillDetailsSheet(Bill bill) {
     final dateFormat = DateFormat('dd MMM yyyy, hh:mm a');
-    
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: const BoxDecoration(
@@ -294,7 +287,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Header
           Padding(
             padding: const EdgeInsets.all(20),
@@ -314,7 +307,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ],
             ),
           ),
-          
+
           // Content
           Expanded(
             child: SingleChildScrollView(
@@ -333,17 +326,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       _buildInfoRow('Date', dateFormat.format(bill.createdAt)),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Items
                   _buildInfoCard(
                     'Items (${bill.totalItems})',
                     bill.items.map((item) => _buildItemRow(item)).toList(),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Summary
                   _buildInfoCard(
                     'Summary',
@@ -360,7 +353,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     ],
                   ),
-                  
+
                   if (bill.notes != null && bill.notes!.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildInfoCard(
@@ -368,7 +361,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       [_buildInfoRow('', bill.notes!)],
                     ),
                   ],
-                  
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -486,7 +479,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     try {
       final authProvider = context.read<AuthProvider>();
       await PDFService.generateAndSaveBill(bill, user: authProvider.user);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

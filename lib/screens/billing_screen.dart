@@ -229,7 +229,6 @@ class _BillingScreenState extends State<BillingScreen> {
   }
 
   Widget _buildProductCard(BuildContext context, Product product) {
-    print('Billing - Product: ${product.name}, imageUrl: ${product.imageUrl}');
     return UltraSimpleProductCard(
       name: product.name,
       category: product.category,

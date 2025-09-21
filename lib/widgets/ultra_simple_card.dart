@@ -38,7 +38,7 @@ class UltraSimpleCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Container(
-            height: height ?? 100, // Fixed height to prevent overflow
+            constraints: height != null ? BoxConstraints(minHeight: height!) : null,
             padding: padding ?? const EdgeInsets.all(16),
             child: child,
           ),
@@ -68,7 +68,7 @@ class UltraSimpleStatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return UltraSimpleCard(
-      height: 120,
+      height: 150,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -146,10 +146,10 @@ class UltraSimpleProductCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return UltraSimpleCard(
-      height: 160,
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Product image
           Container(
@@ -166,7 +166,6 @@ class UltraSimpleProductCard extends StatelessWidget {
                 imageUrl!,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  print('Image load error for URL: $imageUrl, Error: $error');
                   return const Center(child: Icon(Icons.broken_image));
                 },
               ),
@@ -182,17 +181,15 @@ class UltraSimpleProductCard extends StatelessWidget {
           const SizedBox(height: 8),
 
           // Product name
-          Flexible(
-            child: Text(
-              name,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF1F2937),
-                fontSize: 14,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          Text(
+            name,
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF1F2937),
+              fontSize: 14,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
 
@@ -218,7 +215,7 @@ class UltraSimpleProductCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Flexible(
+              Expanded(
                 child: Text(
                   price,
                   style: theme.textTheme.titleMedium?.copyWith(
@@ -230,6 +227,7 @@ class UltraSimpleProductCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 8),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -282,30 +280,32 @@ class UltraSimpleProductCard extends StatelessWidget {
 
           // Action buttons
           if (showActions) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onEdit,
-                    icon: const Icon(Icons.edit, size: 12),
-                    label: const Text('Edit', style: TextStyle(fontSize: 10)),
+                    icon: const Icon(Icons.edit, size: 10),
+                    label: const Text('Edit', style: TextStyle(fontSize: 9)),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
                       side: const BorderSide(color: Color(0xFFE5E7EB)),
+                      minimumSize: const Size(0, 28),
                     ),
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 3),
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: onDelete,
-                    icon: const Icon(Icons.delete, size: 12),
-                    label: const Text('Delete', style: TextStyle(fontSize: 10)),
+                    icon: const Icon(Icons.delete, size: 10),
+                    label: const Text('Delete', style: TextStyle(fontSize: 9)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFEF4444),
                       side: const BorderSide(color: Color(0xFFEF4444)),
-                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 4),
+                      minimumSize: const Size(0, 28),
                     ),
                   ),
                 ),
