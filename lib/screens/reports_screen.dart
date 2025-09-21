@@ -568,97 +568,62 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ),
               )
             else
-              SizedBox(
-                height: 250,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: entries.isNotEmpty ? entries.first.value * 1.2 : 100,
-                    barGroups: entries.take(8).toList().asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final categoryEntry = entry.value;
-                      return BarChartGroupData(
-                        x: index,
-                        barRods: [
-                          BarChartRodData(
-                            toY: categoryEntry.value,
-                            color: _getCategoryColor(categoryEntry.key),
-                            width: 20,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(4),
-                              topRight: Radius.circular(4),
+              Column(
+                children: [
+                  SizedBox(
+                    height: 250,
+                    child: PieChart(
+                      PieChartData(
+                        sectionsSpace: 2,
+                        centerSpaceRadius: 40,
+                        sections: entries.take(8).toList().map((entry) {
+                          final percentage = (entry.value / entries.fold(0.0, (sum, e) => sum + e.value)) * 100;
+                          return PieChartSectionData(
+                            color: _getCategoryColor(entry.key),
+                            value: entry.value,
+                            title: '${percentage.toStringAsFixed(1)}%',
+                            radius: 80,
+                            titleStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Color legend
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 8,
+                    children: entries.take(8).toList().map((entry) {
+                      final percentage = (entry.value / entries.fold(0.0, (sum, e) => sum + e.value)) * 100;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: _getCategoryColor(entry.key),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${entry.key} (${percentage.toStringAsFixed(1)}%)',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       );
                     }).toList(),
-                    titlesData: FlTitlesData(
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 50,
-                          getTitlesWidget: (value, meta) {
-                            return Text(
-                              '₹${value.toInt()}',
-                              style: const TextStyle(fontSize: 10),
-                            );
-                          },
-                        ),
-                      ),
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            final index = value.toInt();
-                            if (index >= 0 && index < entries.take(8).length) {
-                              final categoryName = entries[index].key;
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(
-                                  categoryName.length > 8
-                                      ? '${categoryName.substring(0, 8)}...'
-                                      : categoryName,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              );
-                            }
-                            return const Text('');
-                          },
-                        ),
-                      ),
-                      topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                      rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
-                      ),
-                    ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      drawHorizontalLine: true,
-                      drawVerticalLine: false,
-                      horizontalInterval: entries.isNotEmpty ? entries.first.value / 5 : 20,
-                      getDrawingHorizontalLine: (value) {
-                        return FlLine(
-                          color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
-                          strokeWidth: 1,
-                        );
-                      },
-                    ),
                   ),
-                ),
+                ],
               ),
           ],
         ),

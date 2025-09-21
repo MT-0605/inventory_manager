@@ -4,6 +4,9 @@ import '../providers/product_provider.dart';
 import '../providers/analytics_provider.dart';
 import '../widgets/loading_widget.dart';
 import '../widgets/ultra_simple_card.dart';
+import 'add_edit_product_screen.dart';
+import 'reports_screen.dart';
+import 'low_stock_products_screen.dart';
 
 /// Dashboard screen showing overview and analytics
 class DashboardScreen extends StatefulWidget {
@@ -245,7 +248,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: () {
-                // Navigate to products screen with low stock filter
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const LowStockProductsScreen(),
+                  ),
+                );
               },
               icon: const Icon(Icons.visibility, size: 16),
               label: const Text('View Products'),
@@ -292,7 +299,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {
-                      // Navigate to add product
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const AddEditProductScreen(),
+                        ),
+                      );
                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
@@ -344,7 +355,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () {
-                      // Navigate to billing
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ReportsScreen(),
+                        ),
+                      );
                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
@@ -358,14 +373,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
-                              Icons.receipt_long_outlined,
+                              Icons.analytics_outlined,
                               size: 28,
                               color: Color(0xFF10B981),
                             ),
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'New Sale',
+                            'Reports',
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: const Color(0xFF1F2937),

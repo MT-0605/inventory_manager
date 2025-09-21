@@ -211,7 +211,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        childAspectRatio: 0.6, // Increased aspect ratio to accommodate action buttons
+        childAspectRatio: 0.55, // Slightly decreased height for smaller cards
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),

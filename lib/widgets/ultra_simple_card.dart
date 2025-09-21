@@ -153,7 +153,7 @@ class UltraSimpleProductCard extends StatelessWidget {
         children: [
           // Product image
           Container(
-            height: 70,
+            height: 80,
             width: double.infinity,
             decoration: BoxDecoration(
               color: const Color(0xFFF3F4F6),
@@ -178,7 +178,7 @@ class UltraSimpleProductCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
           // Product name
           Text(
@@ -188,10 +188,10 @@ class UltraSimpleProductCard extends StatelessWidget {
               color: const Color(0xFF1F2937),
               fontSize: 14,
             ),
-            maxLines: 2,
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 5),
 
           // Category
           Container(
@@ -207,6 +207,8 @@ class UltraSimpleProductCard extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 fontSize: 10,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(height: 6),
@@ -221,7 +223,7 @@ class UltraSimpleProductCard extends StatelessWidget {
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: const Color(0xFF6366F1),
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 15,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -244,6 +246,8 @@ class UltraSimpleProductCard extends StatelessWidget {
                       fontWeight: isLowStock ? FontWeight.w600 : FontWeight.w500,
                       fontSize: 10,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
